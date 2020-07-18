@@ -169,7 +169,7 @@ router.post("/auth", (req, res) => {
               if( rep === true ) {
                 const payload = knex(tbl).where('id', data[id]).select().then(payload => {
                  if (tbl === "sellers") {
-                  res.cookie('access_token', token).json({
+                  res.cookie('access_token', token, {httpOnly: true}).json({
                     status: 200,
                     payload,
                     token,

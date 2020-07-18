@@ -50,7 +50,7 @@ router.get("/:id", (req, res) => {
   router.get("/seller/profile", sellerAuth, (req, res) => {
      const id = req.shop.shop_id;  
      knex('sellers').where({id}).select().then( (data) => {
-      console.log(data)
+      // console.log(data)
        if(data) {
               res.send({
                   status: 200,
@@ -120,7 +120,8 @@ router.post("/update/seller",sellerAuth, (req, res) => {
     const {firstname, lastname, phone_number, location} = req.body ;
     const updated_at = new Date().toLocaleString();
   knex('sellers').where('id', id).update( { firstname, lastname, phone_number, location,  updated_at })
-  .then( ( data ) => {  
+  .then( ( data ) => {
+    console.log(data)  
     if(data) {
       res.send({
       status: 200, 

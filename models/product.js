@@ -73,7 +73,9 @@ router.get("/:id", (req, res) => {
         knex('products as p').where('p.id', pid)
        .join('sellers as s', 's.id', '=', 'p.shop_id')
        .join('categories as c', 'c.id', '=', 'p.cat_id')
-       .select('p.*', 'c.name as catName', 's.shop_name as shopName').then( ( data ) => {     
+       .join('cities as l', 'l.id', '=', 'p.location')
+       .select('p.*', 'c.name as catName', 'l.name as locationName', 
+       's.shop_name as shopName', 's.id as seller').then( ( data ) => {     
          if(data) {
             res.send({
                 status: 200,
@@ -94,8 +96,7 @@ router.post("/",  sellerAuth, upload.fields([{
   name: 'main_image', maxCount: 1
 }, {  name: 'first_image', maxCount: 1 }, {  name: 'middle_image', maxCount: 1 }
   ]), (req, res) => {  
-    const shop_id = req.shop.shop_id ; 
-
+    const shop_id = req.shop.shop_id ;  
     const {name: product_name,  first_delivery, second_delivery, third_delivery, within_distance, within_charge,
      beyond_distance, beyond_charge,
      available, packed, description, location, price, cat_id} = req.body;  
@@ -107,13 +108,12 @@ router.post("/",  sellerAuth, upload.fields([{
     const main_image = image['main_image'] && image['main_image'][0].path;
     const first_image = image['first_image'] && image['first_image'][0].path;
     const middle_image = image['middle_image'] && image['middle_image'][0].path;
-    const last_image = image['last_image'] && image['last_image'][0].path;
-     
+    const last_image = image['last_image'] && image['last_image'][0].path; 
     knex('products')
     .insert({ product_name, first_delivery, second_delivery, third_delivery, within_distance, within_charge,
      beyond_distance, beyond_charge,  available, packed, description, tags, location, price, cat_id, shop_id,
-      main_image, first_image, middle_image, last_image, created_at }).then( ( result ) => { 
-    if(result) { 
+      main_image, first_image, middle_image, last_image, created_at }).then( ( result ) => {  
+    if(result.length > 0) {   
          res.send({
                         status: 200,
                         message: 'New product created successfully'
