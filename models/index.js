@@ -1,6 +1,6 @@
 const express = require('express'); 
 const routes = express.Router();
-const company = require('./company');
+const dashboard = require('./dashboard');
 const auth = require('./auth');
 const location = require('./location');
 const category = require('./category');
@@ -10,7 +10,7 @@ const product = require('./product');
 
 
 
-routes.use("/company", company);
+routes.use("/dashboard", dashboard);
 routes.use("/auth", auth);
 routes.use("/location", location);
 routes.use("/category", category);
@@ -20,7 +20,7 @@ routes.use("/product", product);
 
 module.exports = routes;
 
-// const account = require('./company');
+// const account = require('./dashboard');
 // const cors = require("cors"); 
 
 

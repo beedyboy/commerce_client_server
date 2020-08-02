@@ -24,32 +24,13 @@ const {validate, checkHeader, sellerAuth} = require('../middleware/valid');
     })
   }
    });
-
-//get members details by id
-router.get("/:id", (req, res) => {
-    const id = req.params.id;
-    const result = knex('members').where({id}).select().then( ( data ) => { 
-     if(data) {
-         res.send({
-             status: 200,
-             data
-         })
-     }
-       else {
-        res.send({
-          status: 400,
-          message: "Wrong information provided"
-       });
-      
-       }
-      
-       });
-});
-
+ 
  
   router.get("/seller/profile", sellerAuth, (req, res) => {
      const id = req.shop.shop_id;  
-     knex('sellers').where({id}).select().then( (data) => {
+     knex('sellers as u').where('u.id', id)
+     .join('settings as s', 's.seller_id', '=', 'u.id') 
+     .select('u.*', 's.sms', 's.email as seller_email', 's.id as settingsId').then( (data) => {
       // console.log(data)
        if(data) {
               res.send({
@@ -66,7 +47,9 @@ router.get("/:id", (req, res) => {
 
   router.get("/buyer/profile", checkHeader, (req, res) => {
      const id = req.buyer.id;  
-     knex('buyers').where({id}).select().then( (data) => { 
+     knex('buyers as u').where('u.id', id)
+     .join('settings as s', 's.buyer_id', '=', 'u.id') 
+     .select('u.*', 's.sms', 's.email as buyer_email as buyer_email', 's.id as settingsId').then( (data) => { 
        if(data) {
               res.send({
                   status: 200,
@@ -99,9 +82,7 @@ router.post("/update/buyer",checkHeader, (req, res) => {
         status: 400,
         message: "Error updating info" 
       });
-      }
-    
-    
+      } 
      });
              
   } catch(error) {

@@ -37,15 +37,15 @@ const upload = multer({ storage: storage, limits: {
  
 //get all product
 router.get("/all", (req, res) => {  
-     knex('products') 
-      .join('sellers as s', 'products.shop_id', '=', 's.id')
-      .join('categories as c', 'products.cat_id', '=', 'c.id')
-   .select('products.*', 'c.name as catName',
-       's.shop_name as shopName').then( ( data ) => {  
-             res.send( data ).status(200); 
-             }).catch(err => {
-               console.log('all ', err);
-             })
+  knex('products') 
+  .join('sellers as s', 'products.shop_id', '=', 's.id')
+  .join('categories as c', 'products.cat_id', '=', 'c.id')
+.select('products.*', 'c.name as catName',
+   's.shop_name as shopName').then( ( data ) => {  
+         res.send( data ).status(200); 
+         }).catch(err => {
+           console.log('all ', err);
+         })
 });
 
 router.get("/myproduct", sellerAuth, (req, res) => {   

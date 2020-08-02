@@ -32,6 +32,7 @@ const knex = require('../config/knex').knex;
           req.buyer = data[0]; 
           next();
         } else {
+          console.log("Invalid token! Please login again");
           res.json({
             status: 500,
             success: false,
