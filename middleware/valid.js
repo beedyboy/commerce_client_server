@@ -1,11 +1,11 @@
 
-const knex = require('../config/knex').knex; 
+const db = require('../config/knex'); 
 
 
   function validate(tbl) {
   return async function (req,res, next) { 
     let email = req.body.email; 
-    let user = await knex(tbl).where('email', email);
+    let user = await db(tbl).where('email', email);
     console.log(user, user);
         if (user.length > 0) {
             res.json({
@@ -22,17 +22,17 @@ const knex = require('../config/knex').knex;
 
  function checkHeader(req, res, next) {
   try { 
-    if(req.headers.authorization && (req.headers.authorization.split(' ')[0] === 'bearer' || req.headers.authorization.split(' ')[0] === 'Bearer')) {
+    if(req.headers.authorization && (req.headers.authorization.split(' ')[0] === 'bearer'
+     || req.headers.authorization.split(' ')[0] === 'Bearer')) {
       const buyer_token = req.headers.authorization.split(' ')[1];  
-      knex('logins').where({buyer_token})
-      .join('buyers as b', 'logins.user_id', '=', 'b.id')
-      .select('logins.buyer_token', 'logins.user_id', 'logins.id as login_id', 'b.*').then((data) => { 
+      db('logins').where({buyer_token})
+      .join('buyers as b', 'logins.buyer_id', '=', 'b.id')
+      .select('logins.buyer_token', 'logins.buyer_id', 'logins.id as login_id', 'b.*').then((data) => { 
         if (data.length > 0) {
           req.buyer_token = buyer_token;
           req.buyer = data[0]; 
           next();
-        } else {
-          console.log("Invalid token! Please login again");
+        } else { 
           res.json({
             status: 500,
             success: false,
@@ -47,9 +47,11 @@ const knex = require('../config/knex').knex;
  }
 function sellerAuth(req,res,next) { 
     let seller_token = req.cookies.access_token;  
-    knex('logins').where({seller_token})
-    .join('sellers as s', 'logins.shop_id', '=', 's.id')
-      .select('logins.seller_token','logins.shop_id', 'logins.id as login_id', 's.*').then((shop) => { 
+    db('logins').where({seller_token})
+    .join('sellers as s', 'logins.seller_id', '=', 's.id')
+    .join('shops as shop', 's.shop_id', '=', 'shop.id')
+    .select('logins.seller_token','logins.seller_id', 'logins.id as login_id', 's.*', 'shop.id as shop_id')
+    .then((shop) => { 
       if(shop.length < 1) {
         return res.json({
             status:500,
@@ -70,7 +72,7 @@ function sellerAuth(req,res,next) {
 }
   async function valid(req, res, next) {
     let email = req.body.email; 
-let user = await knex('companies').where('email', email); 
+let user = await db('companies').where('email', email); 
         if (user.length > 0) return res.json({
             status: 400,
             success: false,
@@ -84,11 +86,11 @@ async function verify(req,res, next) {
   let email = req.body.email; 
   let phone= req.body.phone;
   let code = req.body.code;
-  let user = await knex('activations').where({'email': email, 'phone': phone});  
+  let user = await db('activations').where({'email': email, 'phone': phone});  
   let rcode = user[0].code; 
   rcode = rcode.replace(/ +/g, ""); 
   if (user.length > 0 && rcode === code) {
-    knex('activations').where({ id: user[0].id }).del().then( d => {
+    db('activations').where({ id: user[0].id }).del().then( d => {
       next();
     });   
 

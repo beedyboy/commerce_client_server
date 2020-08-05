@@ -1,5 +1,5 @@
 const express = require('express');
-const knex = require('../config/knex').knex; 
+const db = require('../config/knex'); 
 const helper = require('../lib/helper');
 const {validate, checkHeader, sellerAuth} = require('../middleware/valid'); 
 const bcrypt = require("bcryptjs");
@@ -14,11 +14,11 @@ const router = express.Router();
 
 router.get("/seller/dashboard", sellerAuth, (req, res) => {   
   const shop_id = req.shop.shop_id ;  
-      knex('products').where({shop_id})
+      db('products').where({shop_id})
        .join('sellers as s', 'products.shop_id', '=', 's.id')
       .join('categories as c', 'products.cat_id', '=', 'c.id')
       .count('products.id as p_count')
-   .select(, 'c.name as catName',
+   .select('c.name as catName',
        's.shop_name as shopName').then( ( data ) => {             
           if(data) {
               res.send({
