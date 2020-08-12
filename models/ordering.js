@@ -1,5 +1,5 @@
 const express = require('express');
-const knex = require('../config/knex').knex; 
+const db = require('../config/knex'); 
 const helper = require('../lib/helper');
 const { getRandomNo } = require('../lib/function'); 
 const { checkHeader, sellerAuth } = require('../middleware/valid'); 
@@ -14,7 +14,7 @@ router.post("/bid",  checkHeader, (req, res) => {
     const { product_id,  seller_id } = req.body;
     const bid_token = helper.generateOTP() + getRandomNo();    
     const created_at = new Date().toLocaleString(); 
-    knex('bids')
+    db('bids')
     .insert({  product_id, buyer_id, seller_id, bid_token, created_at }).then( ( result ) => { 
     if(result) { 
          res.send({
@@ -36,7 +36,7 @@ router.post("/bid",  checkHeader, (req, res) => {
 
   router.get("/seller/bids", sellerAuth, (req, res) => {
      const seller_id = req.shop.shop_id;  
-     knex('bids').where({seller_id})
+     db('bids').where({seller_id})
      .join('products as p', 'bids.product_id', '=', 'p.id')
      .select('bids.*', 'p.product_name').then( (data) => {
        if(data) {
@@ -54,7 +54,7 @@ router.post("/bid",  checkHeader, (req, res) => {
 //fetch buyers bids
   router.get("/buyer/bids", checkHeader, (req, res) => {
      const buyer_id = req.buyer.id;  
-     knex('bids').where({buyer_id})
+     db('bids').where({buyer_id})
      .join('products as p', 'bids.product_id', '=', 'p.id')
      .select('bids.*', 'p.product_name').then( (data) => {
        if(data) {

@@ -1,5 +1,5 @@
 const express = require('express');
-const knex = require('../config/knex').knex; 
+const db = require('../config/knex'); 
 const helper = require('../lib/helper');  
 const router = express.Router(); 
 // var upload = multer({dest: 'uploads/'});
@@ -7,7 +7,7 @@ const router = express.Router();
 //get shops details by id
 router.get("/:id", (req, res) => {
     const id = req.params.id;
-    const result = knex('shops').where({id}).select().then( ( data ) => { 
+    const result = db('shops').where({id}).select().then( ( data ) => { 
      if(data) {
          res.send({
              status: 200,
@@ -36,7 +36,7 @@ router.get("/:name/exist", (req, res) => {
 
 //get all modules
 router.get("/", (req, res) => {  
- knex('shops').join('members', 'shops.mid', '=', 'members.id')
+ db('shops').join('members', 'shops.mid', '=', 'members.id')
  .select('*', 'members.firstname as fn').then( ( data ) => {   
 
      res.send( data ).status(200); 
@@ -50,7 +50,7 @@ router.post("/", (req, res, next) => {
      const {name, description, mid} = req.body; 
     const created_at = new Date().toLocaleString(); 
 
-    knex('shops').insert({  name, mid, description }).then( ( result ) => { 
+    db('shops').insert({  name, mid, description }).then( ( result ) => { 
         
         if(result) { 
             res.send( {
@@ -78,7 +78,7 @@ if(req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bea
 } 
     const {id, name, description} = req.body ;
     const updated_at = new Date().toLocaleString();
-  knex('shops').where('id', id).update( { name, description,  updated_at })
+  db('shops').where('id', id).update( { name, description,  updated_at })
   .then( ( data ) => {  
     if(data) {
       res.send({
@@ -107,7 +107,7 @@ if(req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bea
 
 router.delete("/:id", (req, res) => { 
    try {
-    knex('shops').where('id', req.params.id).del().then( (result) => {
+    db('shops').where('id', req.params.id).del().then( (result) => {
         res.send({
             status: 200,
             message: 'Category deleted successgully'

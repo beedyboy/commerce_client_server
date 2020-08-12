@@ -31,6 +31,7 @@ router.get("/:email/exist", (req, res) => {
 
 //extend seller 
 router.post("/extend/seller", checkHeader, (req, res) => {  
+ try {
 	const {  login_id, email, firstname, lastname, phone_number } = req.buyer; 
 	const created_at = new Date().toLocaleString();  
 	db('shops').returning('id')
@@ -63,12 +64,17 @@ router.post("/extend/seller", checkHeader, (req, res) => {
 		})
 	  }
 	});
+ } catch (error) {
+	 console.log(error);
+	 res.status(500).json({message: "Something went wrong"})
+ }
    
 });
 
 
 //extend buyer 
 router.post("/extend/buyer", sellerAuth, (req, res) => {  
+try {
 	const {  login_id, email, firstname, lastname, phone_number } = req.shop; 
 	const created_at = new Date().toLocaleString();  
 
@@ -92,12 +98,17 @@ router.post("/extend/buyer", sellerAuth, (req, res) => {
 		}
 	}); 
 
+} catch (error) {
+	console.log(error);
+	res.status(500).json({message: "Seomthing went wrong"})
+}
 });
 
   
 //register buyer 
 router.post("/create/buyer", validate('logins'),  (req, res) => {   
-	const { email} = req.body; 
+	try {
+		const { email} = req.body; 
 	const password = helper.hash(req.body.password);
 	const created_at = new Date().toLocaleString(); 
 	const preferred = "BUYER";
@@ -106,13 +117,17 @@ router.post("/create/buyer", validate('logins'),  (req, res) => {
 	.insert({   email, created_at }).then( ( result ) => { 
 	if(result.length > 0) {   
         const buyer_id = result[0];
-		db('logins').insert({ buyer_id, preferred, email, password }).then( reply => {   
-		if(reply)  {
-		   res.send({  status: 200,  message: 'Account created successfully' });
-		} else {
-		   res.send({  status: 404,  message: 'Account not created' });
-		}
-	});
+         helper.createBuyerSettings(buyer_id, created_at).then((rep) => {
+            if(rep === true) {
+                db('logins').insert({ buyer_id, preferred, email, password }).then( reply => {   
+        if(reply)  {
+           res.send({  status: 200,  message: 'Account created successfully' });
+        } else {
+           res.send({  status: 404,  message: 'Account not created' });
+        }
+    });
+            }
+         }) 
 	   
 	  }  else {
 			res.send({
@@ -123,35 +138,45 @@ router.post("/create/buyer", validate('logins'),  (req, res) => {
 	}).catch(err => {
 	  console.log(err);
 	}) 
+	} catch (error) {
+		console.log(error);
+		res.status(500).json({message: "Something went wrong"})
+	}
 });
 
 //register seller
 router.post("/create/seller", validate('logins'),  (req, res) => {   
-	const { email, referrer} = req.body; 
+	try {
+		const { email, referrer} = req.body; 
 	const password = helper.hash(req.body.password);
 	const created_at = new Date().toLocaleString();  
 	const preferred = "SELLER";
 	 db('shops').returning('id')
 	.insert({created_at}).then((shop) => {
 	  if(shop.length > 0) {
-		  db('sellers').returning('id')
-		  .insert({ shop_id:shop[0], email, created_at }).then( ( result ) => { 
-		  if(result.length > 0) {  
-		db('logins').insert({shop_id: result[0], preferred,  email,  password}).then( reply => { 
-		if(reply.length > 0)  {
-		   res.send({  status: 200,  message: 'Account created successfully' });
-		} else {
-		   res.send({  status: 404,  message: 'Account not created' });
-		}
-	});
-	   
-	  }  else {
-			res.send({
-				status: 404,
-				message: 'Account was not created'
-			})
-		}
-	}); 
+        helper.createSellerSettings(shop[0], created_at).then((rep) => {
+            if(rep === true) {
+                 db('sellers').returning('id')
+          .insert({ shop_id:shop[0], email, created_at }).then( ( result ) => {  
+          if(result.length > 0) {  
+        db('logins').insert({seller_id: result[0], preferred,  email,  password}).then( reply => {  
+        if(reply)  {
+           res.send({  status: 200,  message: 'Account created successfully' });
+        } else {
+           res.send({  status: 404,  message: 'Account not created' });
+        }
+    });
+       
+      }  else {
+            res.send({
+                status: 404,
+                message: 'Account was not created'
+            })
+        }
+    }); 
+            }
+        })
+		 
 	  } else {
 		res.send({
 		  status: 404,
@@ -159,12 +184,17 @@ router.post("/create/seller", validate('logins'),  (req, res) => {
 		})
 	  }
 	})
+	} catch (error) {
+		console.log(error);
+		res.status(500).json({message: "Something went wrong"})
+	}
 
 });
 
  
 router.post("/auth", (req, res) => {
-   const { email, referred, goto } = req.body; 
+try {
+	const { email, referred, goto } = req.body; 
 	db('logins').where({email}).select().then( (user ) => {
 		if(user.length > 0) {
 		const data = user[0];
@@ -209,10 +239,8 @@ router.post("/auth", (req, res) => {
 					msg: "Login successful", 
 				  })
 				 }
-				})
-			//     console.log('foreign', data[id], payload)
-			  }
-			// console.log('rep', rep); 
+				}) 
+			  } 
 			})
  
 	 
@@ -224,6 +252,10 @@ router.post("/auth", (req, res) => {
 		}
 		}
 	})
+} catch (error) {
+	console.log(error);
+	res.status(500).json({msg: "Something went wrong!!!"})
+}
    
 });
 

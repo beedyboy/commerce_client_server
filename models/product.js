@@ -1,44 +1,57 @@
 const express = require('express');
-const knex = require('../config/knex').knex; 
+const db = require('../config/knex'); 
 const helper = require('../lib/helper');
 const {validate, checkHeader, sellerAuth} = require('../middleware/valid'); 
-const bcrypt = require("bcryptjs");
-const multer = require('multer');
-const fs = require('fs');
+const {multerUploads, dataUri} = require('../middleware/multer'); 
+const bcrypt = require("bcryptjs"); 
+const fs = require('fs'); 
+const { cloudinary } = require('../config/cloudinary');
 // const mailer = require("../plugins/mailer");
 // const router = require('express').Router;
 
 const router = express.Router(); 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, './uploads/products')
-  },
   // destination: 'http://cloud.devprima.com/uploads',
-  filename: function (req, file, cb) {
-    const ob = file.originalname.split("."); 
-    cb(null, file.fieldname + '-' + Date.now() + '.'+ob[1])
-    // cb(null, file.fieldname + '-' + Date.now())
-    // cb(null, Date.now() + file.originalname);
-  }
-});
-const fileFilter = function (req, file, cb) {
-  if (file.mimetype === 'image/jpeg') {
-    cb(null, true);
-  } else {
-    cb(null, false);
-  }
-}
-const upload = multer({ storage: storage, limits: {
-  fileSize: 1024 * 1024 * 2
-}});
- 
+   // var upload = multerUploads.fields([{ name: 'main_image', maxCount: 1 }, { name: 'first_image', maxCount: 8 }])
+   var upload = multerUploads.array('image')
 
+router.post('/upload', upload, async (req, res) => {
+try { 
+  let urls = [];
+  var image = req.files;
+  var imageSize = Object.keys(image).length;
+  let count = 0;
+   // console.log('images', image);
+     if( imageSize > 0) { 
+     for (const [key, value] of Object.entries(image)) {
+          console.log(value.fieldname);
+       await helper.uploader(value).then(newPath => {
+          console.log(newPath)
+          urls.push(newPath);
+          // fs.unlinkSync(value[0].path); 
+    }) 
+       count += 1;
+      // const newPath = helper.uploader(value[0], 'bcommerce')
+     }
+        
+    if (count === imageSize) { 
+     let images = JSON.stringify(urls); 
+       res.status(200).json({
+        message: 'Your image has been uploaded successfully to cloudinary',
+        count,
+        images
+      }) 
+    }
+  }
+} catch(err) {
+  console.log('upload', err)
+}
+})
 
  
 //get all product
 router.get("/all", (req, res) => {  
-  knex('products') 
-  .join('sellers as s', 'products.shop_id', '=', 's.id')
+  db('products') 
+  .join('shops as s', 'products.shop_id', '=', 's.id')
   .join('categories as c', 'products.cat_id', '=', 'c.id')
 .select('products.*', 'c.name as catName',
    's.shop_name as shopName').then( ( data ) => {  
@@ -50,8 +63,8 @@ router.get("/all", (req, res) => {
 
 router.get("/myproduct", sellerAuth, (req, res) => {   
   const shop_id = req.shop.shop_id ;  
-      const result = knex('products').where({shop_id})
-       .join('sellers as s', 'products.shop_id', '=', 's.id')
+      const result = db('products').where({shop_id})
+       .join('shops as s', 'products.shop_id', '=', 's.id')
       .join('categories as c', 'products.cat_id', '=', 'c.id')
    .select('products.*', 'c.name as catName',
        's.shop_name as shopName').then( ( data ) => {             
@@ -70,8 +83,8 @@ router.get("/myproduct", sellerAuth, (req, res) => {
  
 router.get("/:id", (req, res) => {  
     const pid = req.params.id ; 
-        knex('products as p').where('p.id', pid)
-       .join('sellers as s', 's.id', '=', 'p.shop_id')
+        db('products as p').where('p.id', pid)
+       .join('shops as s', 's.id', '=', 'p.shop_id')
        .join('categories as c', 'c.id', '=', 'p.cat_id')
        .join('cities as l', 'l.id', '=', 'p.location')
        .select('p.*', 'c.name as catName', 'l.name as locationName', 
@@ -90,12 +103,76 @@ router.get("/:id", (req, res) => {
           })
 }); 
 
+
+router.post("/",  sellerAuth, upload, async (req, res) => {  
+  try {
+    const shop_id = req.shop.shop_id;
+    console.log('shop_id', shop_id)
+     let urls = [];
+     var image = req.files;
+     var imageSize = Object.keys(image).length;  
+     let count = 0;
+     if( imageSize > 0) {
+      let pay_image = {
+        main_image: "",
+        first_image: ""
+      } 
+
+     for (const [key, value] of Object.entries(image)) { 
+       await helper.uploader(value).then(newPath => {
+          console.log(newPath.url) 
+          urls.push(newPath.url);
+          // fs.unlinkSync(value[0].path); 
+    })  
+       count += 1;
+     }
+  }  
+   if(count === imageSize) {
+     console.log('count', count);
+     console.log('urls', urls);
+    const {name: product_name,  description, cat_id} = req.body;  
+    const created_at = new Date().toLocaleString(); 
+    let { tags } = req.body;
+    tags = JSON.parse(tags).toString(); 
+    db('products').returning('id')
+    .insert({ product_name, description, tags, cat_id, shop_id, created_at }).then( ( result ) => {  
+    if(result.length > 0) { 
+    const updated_at = new Date().toLocaleString(); 
+     let images = JSON.stringify(urls); 
+     console.log(images);
+     db('products').where('id', result[0]).update({ images, updated_at }).then( (data) => {
+       if(data) {
+         res.send({
+                  status: 200,
+                  message: 'New product created successfully',
+                  images
+              })
+       }
+     })
+         
+  } else {
+      res.send({
+          status: 404,
+          message: 'Product was not created'
+      })
+  }
+    }).catch(err => {
+      console.log(err);
+      res.status(500).json({message: "Something went wrong!!!"})
+    })
+   }
+  } catch (error) {
+    console.log(error);
+  }
   
+});
+
+// router.post("/ps",  sellerAuth, upload.fields([{
+//   name: 'main_image', maxCount: 1
+// }, {  name: 'first_image', maxCount: 1 }, {  name: 'middle_image', maxCount: 1 }
+  // ]), (req, res) => { 
 //create new product
-router.post("/",  sellerAuth, upload.fields([{
-  name: 'main_image', maxCount: 1
-}, {  name: 'first_image', maxCount: 1 }, {  name: 'middle_image', maxCount: 1 }
-  ]), (req, res) => {  
+router.post("/ps",  sellerAuth, (req, res) => {  
     const shop_id = req.shop.shop_id ;  
     const {name: product_name,  first_delivery, second_delivery, third_delivery, within_distance, within_charge,
      beyond_distance, beyond_charge,
@@ -109,7 +186,7 @@ router.post("/",  sellerAuth, upload.fields([{
     const first_image = image['first_image'] && image['first_image'][0].path;
     const middle_image = image['middle_image'] && image['middle_image'][0].path;
     const last_image = image['last_image'] && image['last_image'][0].path; 
-    knex('products')
+    db('products')
     .insert({ product_name, first_delivery, second_delivery, third_delivery, within_distance, within_charge,
      beyond_distance, beyond_charge,  available, packed, description, tags, location, price, cat_id, shop_id,
       main_image, first_image, middle_image, last_image, created_at }).then( ( result ) => {  
@@ -133,8 +210,9 @@ router.post("/update", (req, res) => {
     const {fullname,  role, username, id} = req.body;   
     const updated_at = new Date().toLocaleString();  
     let response = null; 
-    knex('products').where('id', id).update({ fullname, username, role, updated_at }).then( ( result ) => { 
+    db('products').where('id', id).update({ fullname, username, role, updated_at }).then( ( result ) => { 
    if(result) { 
+
             res.send( {
                 status: 200,
                 message: 'Account updated successfully'

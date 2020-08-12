@@ -1,5 +1,5 @@
 const express = require('express');
-const knex = require('../config/knex').knex; 
+const db = require('../config/knex'); 
 const helper = require('../lib/helper');  
 const router = express.Router(); 
 // var upload = multer({dest: 'uploads/'});
@@ -7,7 +7,7 @@ const router = express.Router();
 //get categories details by id
 router.get("/:id", (req, res) => {
     const id = req.params.id;
-    const result = knex('categories').where({id}).select().then( ( data ) => { 
+    const result = db('categories').where({id}).select().then( ( data ) => { 
      if(data) {
          res.send({
              status: 200,
@@ -36,7 +36,7 @@ router.get("/:name/exist", (req, res) => {
 
 //get all modules
 router.get("/", (req, res) => {  
-const result = knex('categories').select().then( ( data ) => {   
+const result = db('categories').select().then( ( data ) => {   
 
      res.send( data ).status(200); 
      });
@@ -49,7 +49,7 @@ router.post("/", (req, res, next) => {
      const {name, description} = req.body; 
     const created_at = new Date().toLocaleString(); 
 
-    knex('categories').insert({  name, description, created_at }).then( ( result ) => { 
+    db('categories').insert({  name, description, created_at }).then( ( result ) => { 
         
         if(result) { 
             res.send( {
@@ -77,7 +77,7 @@ if(req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bea
 } 
     const {id, name, description} = req.body ;
     const updated_at = new Date().toLocaleString();
-  knex('categories').where('id', id).update( { name, description,  updated_at })
+  db('categories').where('id', id).update( { name, description,  updated_at })
   .then( ( data ) => {  
     if(data) {
       res.send({
@@ -106,7 +106,7 @@ if(req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bea
 
 router.delete("/:id", (req, res) => { 
    try {
-    knex('categories').where('id', req.params.id).del().then( (result) => {
+    db('categories').where('id', req.params.id).del().then( (result) => {
         res.send({
             status: 200,
             message: 'Category deleted successgully'
