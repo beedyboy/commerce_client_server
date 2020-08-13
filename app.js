@@ -4,7 +4,7 @@ const cookieParser = require('cookie-parser')
 const http = require('http');
 const socketio = require('socket.io');
 const path = require('path'); 
-const knex = require('./config/knex').knex; 
+const db = require('./config/knex'); 
 const fs = require('fs'); 
 const cors = require("cors"); 
 var routes = require('./models/index'); 
@@ -22,7 +22,7 @@ const io = socketio(server);
 app.post("/get_messages", (req, res) => {
 //gt
 const { buyer, seller } = req.body;
-	knex('chats').where({buyer, seller}).select().then(result => {
+	db('chats').where({buyer, seller}).select().then(result => {
 		//response will be in JSON
 		if(result) {
 			res.json({
@@ -56,7 +56,7 @@ io.on('connection', (socket) => {
 		//save the message in the database  
 	//   const { buyer_id, seller_id, message, sender} = data ;
 	//   const created_at = new Date().toLocaleString();
-	// knex('chats').insert( { buyer, seller, message, sender, created_at })
+	// db('chats').insert( { buyer, seller, message, sender, created_at })
 	// .then( ( result ) => {  
 	//   if(result.length > 0) {
 	 
@@ -98,9 +98,7 @@ app.get('/', (req,res) => {
 // Define PORT
 const port = process.env.PORT || 8000;
  server.listen(port, () => {
-    console.log('Connected to port ' + port);
-    // console.log(process.env.SECRET_KEY)
-    // var dos = slug.split(" ").forEach()
+    console.log('Connected to port ' + port); 
 })
 // const io = socketio(server);
 
