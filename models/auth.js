@@ -3,8 +3,7 @@ const db = require('../config/knex');
 const helper = require('../lib/helper');
 const {validate, checkHeader, sellerAuth} = require('../middleware/valid'); 
 const bcrypt = require("bcryptjs");
-const jwt = require('jsonwebtoken');
-const util = require('../config/util').get(process.env.NODE_ENV);
+const jwt = require('jsonwebtoken'); 
 const mailer = require("../plugins/mailer");
 // const router = require('express').Router;
 

@@ -7,7 +7,7 @@ const path = require('path');
 const knex = require('./config/knex').knex; 
 const fs = require('fs'); 
 const cors = require("cors"); 
-var routes = require('./models/index');
+var routes = require('./models/index'); 
 // var sms = require('./plugins/sms');
 // app.use(cors());
 const app = express();
@@ -99,6 +99,7 @@ app.get('/', (req,res) => {
 const port = process.env.PORT || 8000;
  server.listen(port, () => {
     console.log('Connected to port ' + port);
+    // console.log(process.env.SECRET_KEY)
     // var dos = slug.split(" ").forEach()
 })
 // const io = socketio(server);
