@@ -9,8 +9,16 @@ const fs = require('fs');
 const cors = require("cors"); 
 var routes = require('./models/index'); 
 // var sms = require('./plugins/sms');
-app.use(cors());
+// app.use(cors());
 const app = express();
+app.use(cors({
+  'allowedHeaders': ['sessionId', 'Content-Type', 'X-Requested-With', 'Accept', 'Authorization'],
+  'exposedHeaders': ['sessionId'],
+  'origin': 'https://client-commerce.herokuapp.com',
+  'methods': 'OPTIONS,GET,HEAD,PUT,PATCH,POST,DELETE',
+  'preflightContinue': false
+}));
+
 app.use(express.static('views/'));
 app.use('/uploads/products', express.static('uploads/products'));
 app.use(bodyParser.urlencoded({extended: true}));
