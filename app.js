@@ -14,10 +14,11 @@ const app = express();
 app.use(cors({
   'allowedHeaders': ['sessionId', 'Content-Type', 'X-Requested-With', 'Accept', 'Authorization'],
   'exposedHeaders': ['sessionId'],
-  'credentials': true,
   'origin': 'https://client-commerce.herokuapp.com',
   'methods': 'OPTIONS,GET,HEAD,PUT,PATCH,POST,DELETE',
-  'preflightContinue': false
+  'credentials': true,
+  'preflightContinue': false,
+  "optionsSuccessStatus": 204
 }));
 
 app.use(express.static('views/'));
