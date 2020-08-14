@@ -107,11 +107,12 @@ router.get("/:id", (req, res) => {
 router.post("/",  sellerAuth, upload, async (req, res) => {  
   try {
     const shop_id = req.shop.shop_id;
-    console.log('shop_id', shop_id)
+    // console.log('shop_id', shop_id)
      let urls = [];
      var image = req.files;
      var imageSize = Object.keys(image).length;  
      let count = 0;
+ 
      if( imageSize > 0) {
       let pay_image = {
         main_image: "",
@@ -129,17 +130,16 @@ router.post("/",  sellerAuth, upload, async (req, res) => {
   }  
    if(count === imageSize) {
      console.log('count', count);
-     console.log('urls', urls);
-    const {name: product_name,  description, cat_id} = req.body;  
+     // console.log('urls', urls);
+    const {name: product_name,  description, latitude, longitude, cat_id} = req.body;  
     const created_at = new Date().toLocaleString(); 
     let { tags } = req.body;
     tags = JSON.parse(tags).toString(); 
     db('products').returning('id')
-    .insert({ product_name, description, tags, cat_id, shop_id, created_at }).then( ( result ) => {  
+    .insert({ product_name, description, latitude, longitude, tags, cat_id, shop_id, created_at }).then( ( result ) => {  
     if(result.length > 0) { 
     const updated_at = new Date().toLocaleString(); 
-     let images = JSON.stringify(urls); 
-     console.log(images);
+     let images = JSON.stringify(urls);  
      db('products').where('id', result[0]).update({ images, updated_at }).then( (data) => {
        if(data) {
          res.send({
