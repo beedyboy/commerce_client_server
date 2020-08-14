@@ -11,26 +11,27 @@ var routes = require('./models/index');
 // var sms = require('./plugins/sms');
 // app.use(cors());
 const app = express();
-app.use(cors({
-  'allowedHeaders': ["Origin"," X-Requested-With", "Content-Type", "Accept", 'Authorization', "X-Access-Token"],
-  'exposedHeaders': ['sessionId'],
-  'credentials': true,
-  'origin': 'https://client-commerce.herokuapp.com',
-  'methods': 'OPTIONS,GET,HEAD,PUT,PATCH,POST,DELETE', 
-  'preflightContinue': false,
-  "optionsSuccessStatus": 204
-}));
+// app.use(cors({
+//   'allowedHeaders': ["Origin"," X-Requested-With", "Content-Type", "Accept", 'Authorization', "X-Access-Token"],
+//   'exposedHeaders': ['sessionId'],
+//   'credentials': true,
+//   'origin': 'https://client-commerce.herokuapp.com',
+//   'methods': 'OPTIONS,GET,HEAD,PUT,PATCH,POST,DELETE', 
+//   'preflightContinue': false,
+//   "optionsSuccessStatus": 204
+// }));
  
-// app.use((req, res, next) => {
-// 	res.header("Access-Control-Allow-Origin", "https://client-commerce.herokuapp.com"); 
-//     res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET, OPTIONS');
-// 	res.header("Access-Control-Allow-Headers", "x-www-form-urlencoded, Origin, X-Requested-With, Content-Type, Accept, Authorization");
-// 	if (req.method === 'OPTIONS') { 
-// 		res.header('Access-Control-Allow-Methods', 'PUT, POST, OPTIONS, PATCH, DELETE, GET');
-// 		return res.status(200).json({});
-// 	}
-// 	next();
-// });
+app.use((req, res, next) => {
+	res.header("Access-Control-Allow-Origin", "https://client-commerce.herokuapp.com"); 
+    res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET, OPTIONS');
+	res.header("Access-Control-Allow-Headers", "x-www-form-urlencoded, Origin, X-Requested-With, Content-Type, Accept, Authorization");
+	res.header("Access-Control-Allow-Credentials", true);
+	if (req.method === 'OPTIONS') { 
+		res.header('Access-Control-Allow-Methods', 'PUT, POST, OPTIONS, PATCH, DELETE, GET');
+		return res.status(200).json({});
+	}
+	next();
+});
 
 // app.use('/uploads', express.static('uploads'));
 
