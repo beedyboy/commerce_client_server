@@ -221,7 +221,7 @@ try {
 				const payload = db(tbl).where('id', data[id]).select().then(payload => {
 				 if (tbl === "sellers") {
 				  // res.cookie('access_token', token, {httpOnly: true}).json({
-					 res.cookie('access_token', token).json({
+					 res.cookie('access_token', token, { sameSite: true }).json({
 					status: 200,
 					payload,
 					token,
