@@ -9,7 +9,7 @@ const fs = require('fs');
 const cors = require("cors"); 
 var routes = require('./models/index'); 
 // var sms = require('./plugins/sms');
-// app.use(cors());
+app.use(cors());
 const app = express();
 app.use(express.static('views/'));
 app.use('/uploads/products', express.static('uploads/products'));
