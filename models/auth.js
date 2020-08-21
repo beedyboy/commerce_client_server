@@ -221,7 +221,7 @@ try {
 				const payload = db(tbl).where('id', data[id]).select().then(payload => {
 				 if (tbl === "sellers") {
 				  // res.cookie('access_token', token, {httpOnly: true}).json({
-					 res.cookie('access_token', token, { domain: 'herokuapp.com', sameSite: 'None' }).json({
+					 res.cookie('access_token', token, { domain: '.herokuapp.com', sameSite: 'None' }).json({
 					status: 200,
 					payload,
 					token,
@@ -241,15 +241,18 @@ try {
 				 }
 				}) 
 			  } 
-			})
- 
-	 
+			}) 
 		} else {
 			 res.send({
 		  status: 400,
 		  msg: "wrong email or password"
 		});
 		}
+		} else {
+			res.send({
+		  status: 400,
+		  msg: "wrong email or password"
+		});
 		}
 	})
 } catch (error) {

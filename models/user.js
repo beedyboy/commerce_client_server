@@ -25,7 +25,51 @@ const {validate, checkHeader, sellerAuth} = require('../middleware/valid');
   }
    });
  
+  router.post("/create/staff", sellerAuth, (req, res) => {
+     const shop_id = req.shop.shop_id;  
+     const { email, account_type} = req.body; 
+  const password = helper.hash(req.body.password);
+  const created_at = new Date().toLocaleString();  
+  const preferred = "SELLER"; 
+     db('sellers').returning('id')
+          .insert({ shop_id, email, account_type, created_at }).then( ( result ) => {  
+          if(result.length > 0) {
+             db('logins').insert({seller_id: result[0], preferred,  email,  password}).then( reply => {  
+        if(reply)  {
+           res.send({  status: 200,  message: 'Staff created successfully' });
+        } else {
+           res.send({  status: 404,  message: 'Staff not created' });
+        }
+    });
+          }              
+     }).catch(err => {
+       console.log(err);
+     })
+
+  });
  
+  router.get("/staff/list", sellerAuth, (req, res) => {
+     const id = req.shop.shop_id;  
+     db('sellers as u').where({
+      seller_id: id,
+      account_type: "Secondary"
+    })
+     .join('login as l', 'l.seller_id', '=', 'u.id') 
+     .select('u.*', 'l.id as loginId').then( (data) => {
+      // console.log(data)
+       if(data) {
+              res.send({
+                  status: 200,
+                  data
+              })
+          }
+            
+     }).catch(err => {
+       console.log(err);
+     })
+
+  });
+
   router.get("/seller/profile", sellerAuth, (req, res) => {
      const id = req.shop.shop_id;  
      db('sellers as u').where('u.id', id)

@@ -28,25 +28,40 @@ router.get("/:id", (req, res) => {
 
 //get all stocks in a product
 router.get("/product/:id", (req, res) => {  
-  const product_id = req.params.id;
+ try {
+ 	 const product_id = parseInt(req.params.id);
   db('stocks').where({product_id})
-  .select().then( ( data ) => {    
-	   res.status(200).json({
-		 status: 200,
-		 data
+  .select().then( ( data ) => {   
+  console.log({data}) 
+	  if(data) {
+            res.send({
+                status: 200,
+                data
+            })
+        } else {
+           res.send({
+             status: 400
+          });
+         }
+		}).catch(err => {
+            console.error(' stock list', err);
+          })
+	} catch(error) {
+	   console.log(error);
+	   res.status(500).json({
+		message: "Something went wrong with the request"
 	   })
-		});
+	 }        
 });
 
 //create a new stocks
 router.post("/", (req, res) => {   
   try {
-	const { stock_name, first_delivery, second_delivery,
+	const { name:stock_name, first_delivery, second_delivery,
 			third_delivery, within_distance, within_charge,
 			beyond_distance, beyond_charge, quantity, weight, packed,
 			price, product_id } = req.body; 
   const created_at = new Date().toLocaleString();  
-
   db('stocks').insert({  stock_name, first_delivery, second_delivery, third_delivery, within_distance, within_charge, beyond_distance, beyond_charge, quantity, weight, packed, price, product_id, created_at }).then( ( result ) => {  
   if(result) { 
 	  res.send( {
@@ -59,7 +74,13 @@ router.post("/", (req, res) => {
 		  message: 'Stock was not created'
 	  })
   }
-  });
+  }).catch(err => {
+       console.log(err);
+        res.send( {
+		  status: 2040,
+		  message: 'Error creating stock'
+		  } );
+     })
   } catch(err) {
   console.log({err});
   res.status(500).json({
@@ -142,4 +163,4 @@ if(req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bea
 			 
 });
 
-stocks.exports = router;
+module.exports = router;

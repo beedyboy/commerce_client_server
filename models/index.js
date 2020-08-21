@@ -7,6 +7,7 @@ const category = require('./category');
 const user = require('./user');
 const shop = require('./shop');
 const product = require('./product');
+const stock = require('./stock');
 
 
 
@@ -17,6 +18,7 @@ routes.use("/category", category);
 routes.use("/user", user);
 routes.use("/shop", shop);
 routes.use("/product", product);
+routes.use("/stock", stock);
 
 module.exports = routes;
 

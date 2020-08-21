@@ -8,6 +8,7 @@ const router = express.Router();
 router.get("/:id", (req, res) => {
     const id = req.params.id;
     const result = db('categories').where({id}).select().then( ( data ) => { 
+      console.log({data})
      if(data) {
          res.send({
              status: 200,

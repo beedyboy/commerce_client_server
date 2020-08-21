@@ -81,15 +81,36 @@ router.get("/myproduct", sellerAuth, (req, res) => {
 }); 
  
  
-router.get("/:id", (req, res) => {  
-    const pid = req.params.id ; 
-        db('products as p').where('p.id', pid)
-       .join('shops as s', 's.id', '=', 'p.shop_id')
-       .join('categories as c', 'c.id', '=', 'p.cat_id')
-       .join('cities as l', 'l.id', '=', 'p.location')
-       .select('p.*', 'c.name as catName', 'l.name as locationName', 
-       's.shop_name as shopName', 's.id as seller').then( ( data ) => {     
-         if(data) {
+// router.get("/:id", (req, res) => {  
+//     const pid = req.params.id ; 
+//         db('products as p').where('p.id', pid)
+//        .join('shops as s', 's.id', '=', 'p.shop_id')
+//        .join('categories as c', 'c.id', '=', 'p.cat_id')
+//        .join('stocks as sk', 'sk.product_id', '=', 'p.id')
+//        .select('p.product_name', 'p.latitude', 'p.longitude', 'p.status', 'p.images', 'p.description', 
+//         'c.name as catName', 'sk.*', 
+//        's.shop_name as shopName', 's.id as seller').then( ( data ) => {     
+        //  if(data) {
+        //     res.send({
+        //         status: 200,
+        //         data
+        //     })
+        // } else {
+        //    res.send({
+        //      status: 400
+        //   });
+        // }   }).catch(err => {
+        //     console.error(' product details', err);
+        //   })
+// }); 
+
+router.get("/:id", (req, res) => {
+  try{
+    const pid = parseInt(req.params.id); 
+    db('products as p').where('p.id', pid)
+    .join('shops as s', 's.id', '=', 'p.shop_id')
+    .select('p.*','s.shop_name as shopName', 's.id as seller').then((data) => {
+       if(data) {
             res.send({
                 status: 200,
                 data
@@ -98,11 +119,16 @@ router.get("/:id", (req, res) => {
            res.send({
              status: 400
           });
-        }   }).catch(err => {
+         }
+
+      }).catch(err => {
             console.error(' product details', err);
           })
-}); 
 
+  } catch(error) {
+    console.log(error)
+  }
+})
 
 router.post("/",  sellerAuth, upload, async (req, res) => {  
   try {
