@@ -50,7 +50,8 @@ try {
  
 //get all product
 router.get("/all", (req, res) => {  
-  db('products') 
+  try {
+    db('products') 
   .join('shops as s', 'products.shop_id', '=', 's.id')
   .join('categories as c', 'products.cat_id', '=', 'c.id')
 .select('products.*', 'c.name as catName',
@@ -59,6 +60,12 @@ router.get("/all", (req, res) => {
          }).catch(err => {
            console.log('all ', err);
          })
+       } catch(error) {
+        console.log({error});
+        res.status(500).send({
+          message: "something went wrong with your request"
+        })
+       }
 });
 
 router.get("/myproduct", sellerAuth, (req, res) => {   
@@ -126,7 +133,7 @@ router.get("/:id", (req, res) => {
           })
 
   } catch(error) {
-    console.log(error)
+    console.log('product by id', error)
   }
 })
 
