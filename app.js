@@ -11,26 +11,26 @@ var routes = require('./models/index');
 // var sms = require('./plugins/sms');
 // app.use(cors());
 const app = express();
-// app.use(cors({
-//   'allowedHeaders': ["Origin"," X-Requested-With", "Content-Type", "Accept", 'Authorization', "X-Access-Token"],
-//   'exposedHeaders': ['sessionId'],
-//   'credentials': true,
-//   'origin': 'https://client-commerce.herokuapp.com',
-//   'methods': 'OPTIONS,GET,HEAD,PUT,PATCH,POST,DELETE', 
-//   'preflightContinue': false,
-//   "optionsSuccessStatus": 200
-// }));
+app.use(cors({
+  'allowedHeaders': ["Origin"," X-Requested-With", "Content-Type", "Accept", 'Authorization', "X-Access-Token"],
+  'exposedHeaders': ['sessionId'],
+  'credentials': true,
+  'origin': 'https://client-commerce.herokuapp.com',
+  'methods': 'OPTIONS,GET,HEAD,PUT,PATCH,POST,DELETE', 
+  'preflightContinue': false,
+  "optionsSuccessStatus": 200
+}));
  
-app.use((req, res, next) => {
-	res.header("Access-Control-Allow-Origin", "http://localhost:3000");
-	res.header("Access-Control-Allow-Credentials", true);
-	res.header("Access-Control-Allow-Headers", "x-www-form-urlencoded, Origin, X-Requested-With, Content-Type, Accept, Authorization");
-	if (req.method === 'OPTIONS') {
-		res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET');
-		return res.status(200).json({});
-	}
-	next();
-});
+// app.use((req, res, next) => {
+// 	res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+// 	res.header("Access-Control-Allow-Credentials", true);
+// 	res.header("Access-Control-Allow-Headers", "x-www-form-urlencoded, Origin, X-Requested-With, Content-Type, Accept, Authorization");
+// 	if (req.method === 'OPTIONS') {
+// 		res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET');
+// 		return res.status(200).json({});
+// 	}
+// 	next();
+// });
 // app.use('/uploads', express.static('uploads'));
 
 

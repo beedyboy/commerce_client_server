@@ -8,6 +8,7 @@ const user = require('./user');
 const shop = require('./shop');
 const product = require('./product');
 const stock = require('./stock');
+const ordering = require('./ordering');
 
 
 
@@ -19,6 +20,7 @@ routes.use("/user", user);
 routes.use("/shop", shop);
 routes.use("/product", product);
 routes.use("/stock", stock);
+routes.use("/ordering", ordering);
 
 module.exports = routes;
 

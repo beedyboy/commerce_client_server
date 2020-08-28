@@ -29,10 +29,11 @@ router.get("/:id", (req, res) => {
 //get all stocks in a product
 router.get("/product/:id", (req, res) => {  
  try {
- 	 const product_id = parseInt(req.params.id);
-  db('stocks').where({product_id})
-  .select().then( ( data ) => {   
-  console.log({data}) 
+	  const product_id = parseInt(req.params.id);
+	  console.log({product_id})
+  db('stocks as s').where({product_id})
+  .join('products as p', 's.product_id', '=', 'p.id') 
+  .select('s.*', 'p.product_name', 'p.shop_id').then( ( data ) => {  
 	  if(data) {
             res.send({
                 status: 200,
@@ -44,7 +45,7 @@ router.get("/product/:id", (req, res) => {
           });
          }
 		}).catch(err => {
-            console.error(' stock list', err);
+            console.error('stock list', err);
           })
 	} catch(error) {
 	   console.log(error);
