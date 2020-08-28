@@ -15,7 +15,7 @@ app.use(cors({
   'allowedHeaders': ["Origin"," X-Requested-With", "Content-Type", "Accept", 'Authorization', "X-Access-Token"],
   'exposedHeaders': ['sessionId'],
   'credentials': true,
-  'origin': '*',
+  'origin': 'https://client-commerce.herokuapp.com',
   'methods': 'OPTIONS,GET,HEAD,PUT,PATCH,POST,DELETE', 
   'preflightContinue': false,
   "optionsSuccessStatus": 200

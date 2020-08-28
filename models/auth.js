@@ -116,8 +116,7 @@ router.post("/create/buyer", validate('logins'),  (req, res) => {
 	.insert({   email, created_at }).then( ( result ) => { 
 	if(result.length > 0) {   
         const buyer_id = result[0];
-         helper.createBuyerSettings(buyer_id, created_at).then((rep) => {
-			 console.log({rep})
+         helper.createBuyerSettings(buyer_id, created_at).then((rep) => { 
             if(rep === true) {
                 db('logins').insert({ buyer_id, preferred, email, password }).then( reply => {   
         if(reply)  {
@@ -160,7 +159,8 @@ router.post("/create/seller", validate('logins'),  (req, res) => {
                  db('sellers').returning('id')
           .insert({ shop_id:shop[0], email, created_at }).then( ( result ) => {  
           if(result.length > 0) {  
-        db('logins').insert({seller_id: result[0], preferred,  email,  password}).then( reply => {  
+		db('logins').returning('id')
+		.insert({seller_id: result[0], preferred,  email,  password}).then( reply => {  
         if(reply)  {
            res.send({  status: 200,  message: 'Account created successfully' });
         } else {
