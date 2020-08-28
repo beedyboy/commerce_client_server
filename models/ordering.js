@@ -47,6 +47,11 @@ router.post("/bid",  checkHeader, (req, res) => {
                   status: 200,
                   data
               })
+          } else {
+            res.send({
+              status: 400,
+              data: {}
+            })
           }
             
      }).catch(err => {

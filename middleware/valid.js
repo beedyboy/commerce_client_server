@@ -47,11 +47,13 @@ const db = require('../config/knex');
  }
 function sellerAuth(req,res,next) { 
     let seller_token = req.cookies.access_token;  
-    db('logins').where({seller_token})
-    .join('sellers as s', 'logins.seller_id', '=', 's.id')
+    console.log({seller_token})
+    db('logins as l').where({seller_token})
+    .join('sellers as s', 'l.seller_id', '=', 's.id')
     .join('shops as shop', 's.shop_id', '=', 'shop.id')
-    .select('logins.seller_token','logins.seller_id', 'logins.id as login_id', 's.*', 'shop.id as shop_id')
+    .select('l.seller_token','l.seller_id', 'l.id as login_id', 's.*', 'shop.id as shop_id')
     .then((shop) => { 
+      console.log({shop})
       if(shop.length < 1) {
         return res.json({
             status:500,

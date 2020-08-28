@@ -117,6 +117,7 @@ router.post("/create/buyer", validate('logins'),  (req, res) => {
 	if(result.length > 0) {   
         const buyer_id = result[0];
          helper.createBuyerSettings(buyer_id, created_at).then((rep) => {
+			 console.log({rep})
             if(rep === true) {
                 db('logins').insert({ buyer_id, preferred, email, password }).then( reply => {   
         if(reply)  {
@@ -136,6 +137,7 @@ router.post("/create/buyer", validate('logins'),  (req, res) => {
 		}
 	}).catch(err => {
 	  console.log(err);
+	  res.status(500).json({message: "Something went wrong"})
 	}) 
 	} catch (error) {
 		console.log(error);
