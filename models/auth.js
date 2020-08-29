@@ -198,8 +198,7 @@ try {
 	const { email, referred, goto } = req.body; 
 	db('logins').where({email}).select().then( (user) => {
 		if(user.length > 0) {
-		const data = user[0];
-        console.log(data);
+		const data = user[0]; 
 		if (bcrypt.compareSync(req.body.password, data.password)) {
 			  const token = helper.generateToken(data);  
 			  let took = '';

@@ -62,7 +62,7 @@ router.post("/bid",  checkHeader, (req, res) => {
 //fetch buyers bids
   router.get("/buyer/bids", checkHeader, (req, res) => {
     try {
-      const buyer_id = req.buyer.id;  
+      const buyer_id = req.buyer.id;   
       db('bids as b').where({buyer_id})
       .join('stocks as s', 'b.stock_id', '=', 's.id')
       .join('products as p', 's.product_id', '=', 'p.id').
